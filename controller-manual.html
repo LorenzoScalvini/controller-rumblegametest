@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vibrazione Controller Switch</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      h1 {
+        color: #e60012;
+        text-align: center;
+      }
+      .controls {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        margin-top: 20px;
+      }
+      button {
+        padding: 10px;
+        background-color: #e60012;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: #ff3c28;
+      }
+      button:disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
+      }
+      .vibration-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 15px;
+      }
+      .vibration-button {
+        flex: 1;
+        min-width: 80px;
+        text-align: center;
+      }
+      .vibration-button.active {
+        background-color: #1e90ff;
+      }
+      .status {
+        text-align: center;
+        margin-top: 20px;
+        font-weight: bold;
+      }
+      .section-title {
+        margin-top: 20px;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+      .pattern-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 15px;
+      }
+      .pattern-button {
+        flex: 1;
+        min-width: 100px;
+        text-align: center;
+      }
+      .pattern-button.active {
+        background-color: #1e90ff;
+      }
+      .slider-container {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+      .slider-label {
+        display: flex;
+        justify-content: space-between;
+      }
+      .slider {
+        width: 100%;
+      }
+      .custom-sequence {
+        margin-top: 15px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
+      .sequence-steps {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 10px;
+      }
+      .sequence-step {
+        flex: 1;
+        padding: 10px;
+        background-color: #f0f0f0;
+        border-radius: 5px;
+        text-align: center;
+      }
+      .advanced-options {
+        margin-top: 15px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Connetti il tuo Controller Switch</h1>
+
+    <div class="controls">
+      <button id="connect">Connetti Controller</button>
+
+      <div class="section-title">Seleziona l'intensità della vibrazione:</div>
+      <div class="vibration-buttons" id="vibrationOptions">
+        <button class="vibration-button" data-intensity="5" disabled>
+          Molto Leggera
+        </button>
+        <button class="vibration-button" data-intensity="15" disabled>
+          Leggera
+        </button>
+        <button class="vibration-button" data-intensity="30" disabled>
+          Moderata
+        </button>
+        <button class="vibration-button" data-intensity="50" disabled>
+          Media
+        </button>
+        <button class="vibration-button" data-intensity="70" disabled>
+          Forte
+        </button>
+        <button class="vibration-button" data-intensity="85" disabled>
+          Molto Forte
+        </button>
+        <button class="vibration-button" data-intensity="100" disabled>
+          Massima
+        </button>
+      </div>
+
+      <div class="section-title">Modalità di vibrazione:</div>
+      <div class="pattern-buttons" id="patternOptions">
+        <button class="pattern-button active" data-pattern="constant" disabled>
+          Costante
+        </button>
+        <button class="pattern-button" data-pattern="pulse" disabled>
+          Pulsante
+        </button>
+        <button class="pattern-button" data-pattern="wave" disabled>
+          Ondulato
+        </button>
+        <button class="pattern-button" data-pattern="ramp" disabled>
+          Crescente
+        </button>
+        <button class="pattern-button" data-pattern="custom" disabled>
+          Personalizzato
+        </button>
+      </div>
+
+      <div id="durationControls" class="slider-container">
+        <div class="section-title">Durata (secondi):</div>
+        <input
+          type="range"
+          id="durationSlider"
+          class="slider"
+          min="1"
+          max="60"
+          value="10"
+          disabled
+        />
+        <div class="slider-label">
+          <span>1s</span>
+          <span id="durationValue">10s</span>
+          <span>60s</span>
+        </div>
+      </div>
+
+      <div
+        id="customPatternControls"
+        class="custom-sequence"
+        style="display: none"
+      >
+        <div class="section-title">Crea sequenza personalizzata:</div>
+        <div class="sequence-steps" id="sequenceSteps">
+          <div class="sequence-step">
+            <div>Fase 1</div>
+            <input
+              type="range"
+              class="slider"
+              min="0"
+              max="100"
+              value="50"
+              data-step="1"
+            />
+            <div>
+              Durata:
+              <input
+                type="number"
+                min="0.1"
+                max="5"
+                step="0.1"
+                value="1.0"
+                style="width: 50px"
+              />s
+            </div>
+          </div>
+          <div class="sequence-step">
+            <div>Fase 2</div>
+            <input
+              type="range"
+              class="slider"
+              min="0"
+              max="100"
+              value="0"
+              data-step="2"
+            />
+            <div>
+              Durata:
+              <input
+                type="number"
+                min="0.1"
+                max="5"
+                step="0.1"
+                value="1.0"
+                style="width: 50px"
+              />s
+            </div>
+          </div>
+        </div>
+        <button id="addSequenceStep" disabled>Aggiungi Fase</button>
+      </div>
+
+      <div class="advanced-options">
+        <div class="section-title">Opzioni Avanzate:</div>
+
+        <div id="pulseControls" class="slider-container" style="display: none">
+          <div class="section-title">Velocità della pulsazione:</div>
+          <input
+            type="range"
+            id="pulseSpeedSlider"
+            class="slider"
+            min="1"
+            max="10"
+            value="5"
+            disabled
+          />
+          <div class="slider-label">
+            <span>Lenta</span>
+            <span id="pulseSpeedValue">Media</span>
+            <span>Veloce</span>
+          </div>
+        </div>
+
+        <div id="waveControls" class="slider-container" style="display: none">
+          <div class="section-title">Tipo di onda:</div>
+          <select id="waveTypeSelect" disabled>
+            <option value="sine">Sinusoidale</option>
+            <option value="triangle">Triangolare</option>
+            <option value="square">Quadrata</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="action-buttons">
+        <button id="vibrate" disabled>Inizia Vibrazione</button>
+        <button id="stopVibrate" disabled>Ferma Vibrazione</button>
+      </div>
+    </div>
+
+    <div id="status" class="status">Controller non connesso</div>
+
+    <script>
+      let device;
+      let vibrationInterval;
+      let currentIntensity = 50;
+      let currentPattern = 'constant';
+      let vibrationDuration = 10; // secondi
+      let isVibrating = false;
+      let vibrationTimeout;
+      let customSequence = [
+        { intensity: 50, duration: 1.0 },
+        { intensity: 0, duration: 1.0 },
+      ];
+      let currentSequenceStep = 0;
+      let pulseSpeed = 5; // Da 1 a 10
+      let waveType = 'sine';
+
+      const connectBtn = document.getElementById('connect');
+      const vibrateBtn = document.getElementById('vibrate');
+      const stopVibrateBtn = document.getElementById('stopVibrate');
+      const statusElement = document.getElementById('status');
+      const vibrationButtons = document.querySelectorAll('.vibration-button');
+      const patternButtons = document.querySelectorAll('.pattern-button');
+      const durationSlider = document.getElementById('durationSlider');
+      const durationValue = document.getElementById('durationValue');
+      const customPatternControls = document.getElementById(
+        'customPatternControls'
+      );
+      const addSequenceStepBtn = document.getElementById('addSequenceStep');
+      const sequenceStepsContainer = document.getElementById('sequenceSteps');
+      const pulseControls = document.getElementById('pulseControls');
+      const waveControls = document.getElementById('waveControls');
+      const pulseSpeedSlider = document.getElementById('pulseSpeedSlider');
+      const pulseSpeedValue = document.getElementById('pulseSpeedValue');
+      const waveTypeSelect = document.getElementById('waveTypeSelect');
+
+      // Gestisce la selezione dell'intensità
+      vibrationButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          // Rimuovi classe attiva da tutti i pulsanti
+          vibrationButtons.forEach((btn) => btn.classList.remove('active'));
+
+          // Aggiungi classe attiva al pulsante selezionato
+          button.classList.add('active');
+
+          // Imposta l'intensità corrente
+          currentIntensity = parseInt(button.dataset.intensity);
+
+          // Se la vibrazione è attiva, aggiorna in tempo reale
+          if (isVibrating) {
+            updateVibration();
+          }
+        });
+      });
+
+      // Gestisce la selezione del pattern
+      patternButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          // Rimuovi classe attiva da tutti i pulsanti
+          patternButtons.forEach((btn) => btn.classList.remove('active'));
+
+          // Aggiungi classe attiva al pulsante selezionato
+          button.classList.add('active');
+
+          // Imposta il pattern corrente
+          currentPattern = button.dataset.pattern;
+
+          // Mostra/nascondi controlli personalizzati
+          if (currentPattern === 'custom') {
+            customPatternControls.style.display = 'block';
+          } else {
+            customPatternControls.style.display = 'none';
+          }
+
+          // Mostra/nascondi controlli specifici per pattern
+          if (currentPattern === 'pulse') {
+            pulseControls.style.display = 'block';
+            waveControls.style.display = 'none';
+          } else if (currentPattern === 'wave') {
+            pulseControls.style.display = 'none';
+            waveControls.style.display = 'block';
+          } else {
+            pulseControls.style.display = 'none';
+            waveControls.style.display = 'none';
+          }
+
+          // Se la vibrazione è attiva, aggiorna in tempo reale
+          if (isVibrating) {
+            updateVibration();
+          }
+        });
+      });
+
+      // Gestisce il controllo della durata
+      durationSlider.addEventListener('input', () => {
+        vibrationDuration = parseInt(durationSlider.value);
+        durationValue.textContent = `${vibrationDuration}s`;
+      });
+
+      // Gestisce la velocità della pulsazione
+      pulseSpeedSlider.addEventListener('input', () => {
+        pulseSpeed = parseInt(pulseSpeedSlider.value);
+        let speedText = 'Media';
+        if (pulseSpeed <= 3) speedText = 'Lenta';
+        else if (pulseSpeed >= 8) speedText = 'Veloce';
+        pulseSpeedValue.textContent = speedText;
+
+        if (isVibrating && currentPattern === 'pulse') {
+          updateVibration();
+        }
+      });
+
+      // Gestisce il tipo di onda
+      waveTypeSelect.addEventListener('change', () => {
+        waveType = waveTypeSelect.value;
+
+        if (isVibrating && currentPattern === 'wave') {
+          updateVibration();
+        }
+      });
+
+      // Aggiungi fase alla sequenza personalizzata
+      addSequenceStepBtn.addEventListener('click', () => {
+        const stepNumber = customSequence.length + 1;
+        const newStep = document.createElement('div');
+        newStep.className = 'sequence-step';
+        newStep.innerHTML = `
+          <div>Fase ${stepNumber}</div>
+          <input type="range" class="slider" min="0" max="100" value="50" data-step="${stepNumber}" />
+          <div>Durata: <input type="number" min="0.1" max="5" step="0.1" value="1.0" style="width:50px">s</div>
+        `;
+        sequenceStepsContainer.appendChild(newStep);
+
+        // Aggiungi alla sequenza
+        customSequence.push({ intensity: 50, duration: 1.0 });
+
+        // Aggiungi event listener
+        const newSlider = newStep.querySelector('.slider');
+        const newDuration = newStep.querySelector('input[type="number"]');
+
+        newSlider.addEventListener('input', () => {
+          customSequence[stepNumber - 1].intensity = parseInt(newSlider.value);
+        });
+
+        newDuration.addEventListener('input', () => {
+          customSequence[stepNumber - 1].duration = parseFloat(
+            newDuration.value
+          );
+        });
+      });
+
+      connectBtn.addEventListener('click', async () => {
+        try {
+          const devices = await navigator.hid.requestDevice({
+            filters: [{ vendorId: 0x057e }], // Nintendo Switch
+          });
+
+          if (devices.length > 0) {
+            device = devices[0];
+            await device.open();
+
+            statusElement.textContent = 'Controller connesso!';
+            statusElement.style.color = 'green';
+
+            // Abilita i controlli
+            vibrationButtons.forEach((button) => {
+              button.disabled = false;
+            });
+            patternButtons.forEach((button) => {
+              button.disabled = false;
+            });
+            vibrateBtn.disabled = false;
+            stopVibrateBtn.disabled = true; // Disabilitato finché non si avvia la vibrazione
+            connectBtn.disabled = true;
+            durationSlider.disabled = false;
+            addSequenceStepBtn.disabled = false;
+            pulseSpeedSlider.disabled = false;
+            waveTypeSelect.disabled = false;
+
+            // Imposta l'opzione media come predefinita
+            const defaultButton = document.querySelector(
+              '[data-intensity="50"]'
+            );
+            defaultButton.classList.add('active');
+          }
+        } catch (error) {
+          console.error('Errore nella connessione: ', error);
+          statusElement.textContent = 'Errore nella connessione';
+          statusElement.style.color = 'red';
+        }
+      });
+
+      function getVibrationData(intensity) {
+        // Valori originali del codice (massima vibrazione)
+        const originalValues = new Uint8Array([
+          0x10, 0x80, 0x40, 0x40, 0x00, 0x01, 0x40, 0x40, 0x00, 0x01, 0x40,
+          0x40, 0x00, 0x01, 0x40, 0x40,
+        ]);
+
+        // Valori minimi (nessuna vibrazione)
+        const minValues = new Uint8Array([
+          0x10, 0x00, 0x40, 0x40, 0x00, 0x01, 0x00, 0x40, 0x40, 0x00, 0x01,
+          0x00, 0x40, 0x00, 0x01, 0x00, 0x40,
+        ]);
+
+        // Se è 100%, ritorna esattamente i valori originali per massima vibrazione
+        if (intensity === 100) {
+          return originalValues;
+        }
+        // Se è 0%, ritorna valori nulli
+        else if (intensity === 0) {
+          return minValues;
+        }
+        // Altrimenti, interpola i valori
+        else {
+          const result = new Uint8Array(originalValues.length);
+
+          // Copia i valori che non sono di intensità
+          for (let i = 0; i < originalValues.length; i++) {
+            // Per le posizioni 1, 6, 11, 15 che sono le ampiezze di vibrazione
+            if (i === 1 || i === 6 || i === 11 || i === 15) {
+              // Scala l'intensità, max 0x80 (128)
+              result[i] = Math.floor((intensity / 100) * 128);
+            } else {
+              // Mantieni gli altri valori originali
+              result[i] = originalValues[i];
+            }
+          }
+          return result;
+        }
+      }
+
+      function getCurrentIntensityForPattern(baseTime) {
+        let calculatedIntensity = currentIntensity;
+
+        switch (currentPattern) {
+          case 'constant':
+            // Intensità costante
+            break;
+
+          case 'pulse':
+            // Pulsante: alterna tra massimo e 0
+            const frequency = 11 - pulseSpeed; // Inverte per avere frequenze più alte con valori più alti
+            const cycleTime = frequency * 100; // Millisecondi per ciclo completo
+            const phase = (baseTime % cycleTime) / cycleTime;
+
+            if (phase < 0.5) {
+              calculatedIntensity = currentIntensity;
+            } else {
+              calculatedIntensity = 0;
+            }
+            break;
+
+          case 'wave':
+            // Ondulato: varia l'intensità in modo ondulatorio
+            const waveFrequency = 2000; // 2 secondi per ciclo completo
+            const wavePhase = (baseTime % waveFrequency) / waveFrequency;
+
+            if (waveType === 'sine') {
+              // Sinusoidale
+              calculatedIntensity = Math.round(
+                (Math.sin(wavePhase * 2 * Math.PI) * 0.5 + 0.5) *
+                  currentIntensity
+              );
+            } else if (waveType === 'triangle') {
+              // Triangolare
+              const trianglePhase =
+                wavePhase < 0.5 ? wavePhase * 2 : 2 - wavePhase * 2;
+              calculatedIntensity = Math.round(
+                trianglePhase * currentIntensity
+              );
+            } else if (waveType === 'square') {
+              // Onda quadra
+              calculatedIntensity = wavePhase < 0.5 ? currentIntensity : 0;
+            }
+            break;
+
+          case 'ramp':
+            // Rampa crescente
+            const rampDuration = vibrationDuration * 1000;
+            const rampPhase = Math.min(baseTime / rampDuration, 1);
+            calculatedIntensity = Math.round(rampPhase * currentIntensity);
+            break;
+
+          case 'custom':
+            // Sequenza personalizzata
+            let totalDuration = 0;
+            let currentPosition = baseTime;
+
+            // Trova la fase corrente
+            for (let i = 0; i < customSequence.length; i++) {
+              const stepDuration = customSequence[i].duration * 1000;
+
+              if (currentPosition < stepDuration) {
+                calculatedIntensity = customSequence[i].intensity;
+                break;
+              }
+
+              currentPosition -= stepDuration;
+
+              // Se siamo arrivati alla fine della sequenza, ricomincia
+              if (i === customSequence.length - 1) {
+                i = -1; // Sarà incrementato a 0 nel prossimo ciclo
+              }
+            }
+            break;
+        }
+
+        return calculatedIntensity;
+      }
+
+      function updateVibration() {
+        if (vibrationInterval) {
+          clearInterval(vibrationInterval);
+        }
+
+        const startTime = Date.now();
+
+        // Avvia la vibrazione con il pattern selezionato
+        vibrationInterval = setInterval(async () => {
+          try {
+            const elapsedTime = Date.now() - startTime;
+
+            // Calcola l'intensità basata sul pattern
+            const effectiveIntensity =
+              getCurrentIntensityForPattern(elapsedTime);
+
+            // Ottieni i dati di vibrazione basati sull'intensità calcolata
+            const vibrationData = getVibrationData(effectiveIntensity);
+
+            // Invia il comando al controller
+            await device.sendReport(0x10, vibrationData);
+
+            // Termina dopo la durata selezionata (per pattern non custom)
+            if (
+              currentPattern !== 'custom' &&
+              elapsedTime >= vibrationDuration * 1000
+            ) {
+              stopVibration();
+            }
+          } catch (error) {
+            console.error("Errore nell'invio del comando di vibrazione", error);
+            stopVibration();
+            statusElement.textContent = "Errore nell'invio del comando";
+            statusElement.style.color = 'red';
+          }
+        }, 50); // Aggiornamento più frequente (50ms) per pattern più fluidi
+      }
+
+      function startVibration() {
+        if (!device) {
+          statusElement.textContent = 'Nessun dispositivo connesso';
+          statusElement.style.color = 'red';
+          return;
+        }
+
+        // Ottieni la descrizione testuale dell'intensità
+        let intensityText = 'Media';
+        vibrationButtons.forEach((button) => {
+          if (parseInt(button.dataset.intensity) === currentIntensity) {
+            intensityText = button.textContent.trim();
+          }
+        });
+
+        // Ottieni la descrizione del pattern
+        let patternText = 'Costante';
+        patternButtons.forEach((button) => {
+          if (button.dataset.pattern === currentPattern) {
+            patternText = button.textContent.trim();
+          }
+        });
+
+        // Avvia la vibrazione
+        updateVibration();
+        isVibrating = true;
+
+        statusElement.textContent = `Vibrazione "${intensityText}" in modalità "${patternText}" attiva`;
+        statusElement.style.color = 'blue';
+
+        vibrateBtn.disabled = true;
+        stopVibrateBtn.disabled = false;
+      }
+
+      function stopVibration() {
+        if (vibrationInterval) {
+          clearInterval(vibrationInterval);
+          vibrationInterval = null;
+        }
+
+        if (vibrationTimeout) {
+          clearTimeout(vibrationTimeout);
+          vibrationTimeout = null;
+        }
+
+        isVibrating = false;
+        statusElement.textContent = 'Vibrazione fermata';
+        statusElement.style.color = 'black';
+        vibrateBtn.disabled = false;
+        stopVibrateBtn.disabled = true;
+
+        // Invia comando di stop
+        if (device) {
+          try {
+            device.sendReport(0x10, getVibrationData(0));
+          } catch (error) {
+            console.error("Errore nell'invio del comando di stop", error);
+          }
+        }
+      }
+
+      vibrateBtn.addEventListener('click', startVibration);
+      stopVibrateBtn.addEventListener('click', stopVibration);
+
+      // Inizializza gli event listeners per la sequenza personalizzata iniziale
+      document
+        .querySelectorAll('#sequenceSteps .sequence-step')
+        .forEach((step, index) => {
+          const slider = step.querySelector('.slider');
+          const duration = step.querySelector('input[type="number"]');
+
+          slider.addEventListener('input', () => {
+            customSequence[index].intensity = parseInt(slider.value);
+          });
+
+          duration.addEventListener('input', () => {
+            customSequence[index].duration = parseFloat(duration.value);
+          });
+        });
+    </script>
+  </body>
+</html>
